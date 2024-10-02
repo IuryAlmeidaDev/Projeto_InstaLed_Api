@@ -9,17 +9,17 @@ app.use(express.json());
 app.post('/led/on', (req, res) => {
     ledState = true;
     console.log("LED ligado");
-    res.json({ state: ledState }); // Retorna um JSON com o estado do LED
+    res.status(200).json({ state: true }); // Retorna um JSON { state: true } para /led/on
 });
 
 app.post('/led/off', (req, res) => {
     ledState = false;
     console.log("LED desligado");
-    res.json({ state: ledState }); // Retorna um JSON com o estado do LED
+    res.status(200).json({ state: false }); // Retorna um JSON { state: false } para /led/off
 });
 
 app.get('/led/state', (req, res) => {
-    res.json({ state: ledState });
+    res.json({ state: ledState }); // Retorna o estado atual do LED
 });
 
 app.listen(port, () => {
