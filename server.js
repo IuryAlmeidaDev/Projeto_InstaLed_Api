@@ -9,13 +9,13 @@ app.use(express.json());
 app.post('/led/on', (req, res) => {
     ledState = true;
     console.log("LED ligado");
-    res.send('LED ligado');
+    res.json({ state: ledState }); // Retorna um JSON com o estado do LED
 });
 
 app.post('/led/off', (req, res) => {
     ledState = false;
     console.log("LED desligado");
-    res.send('LED desligado');
+    res.json({ state: ledState }); // Retorna um JSON com o estado do LED
 });
 
 app.get('/led/state', (req, res) => {
@@ -25,6 +25,3 @@ app.get('/led/state', (req, res) => {
 app.listen(port, () => {
     console.log(`API rodando na porta ${port}`);
 });
-
-
-//hello
