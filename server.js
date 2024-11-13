@@ -1,4 +1,5 @@
 const express = require('express');
+const WebSocket = require('ws');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -6,25 +7,44 @@ let ledState = false; // Estado do LED
 
 app.use(express.json());
 
-app.post('/led/on', (req, res) => {
-    ledState = true;
-    console.log("LED ligado");
-    res.send('LED ligado');
+// Criando o servidor WebSocket
+const wss = new WebSocket.Server({ noServer: true });
+
+// Quando um cliente se conecta via WebSocket
+wss.on('connection', (ws) => {
+    console.log('Cliente conectado via WebSocket');
+
+    // Enviar o estado inicial do LED para o cliente
+    ws.send(JSON.stringify({ state: ledState }));
+
+    // Escutar mensagens do cliente
+    ws.on('message', (message) => {
+        console.log('Mensagem recebida:', message);
+
+        if (message === 'turn_on') {
+            ledState = true;
+            console.log("LED ligado");
+            ws.send('LED ligado');
+        } else if (message === 'turn_off') {
+            ledState = false;
+            console.log("LED desligado");
+            ws.send('LED desligado');
+        }
+    });
+
+    // Quando o cliente desconectar
+    ws.on('close', () => {
+        console.log('Cliente desconectado');
+    });
 });
 
-app.post('/led/off', (req, res) => {
-    ledState = false;
-    console.log("LED desligado");
-    res.send('LED desligado');
-});
-
-app.get('/led/state', (req, res) => {
-    res.json({ state: ledState });
-});
-
-app.listen(port, () => {
+// Redireciona a requisição HTTP para o WebSocket
+app.server = app.listen(port, () => {
     console.log(`API rodando na porta ${port}`);
 });
 
-
-//hello
+app.server.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+    });
+});
