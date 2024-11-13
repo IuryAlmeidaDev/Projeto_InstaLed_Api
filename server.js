@@ -43,6 +43,12 @@ app.server = app.listen(port, () => {
     console.log(`API rodando na porta ${port}`);
 });
 
+// Endpoint HTTP para verificar o status do LED
+app.get('/led/status', (req, res) => {
+    res.json({ state: ledState }); // Retorna o estado atual do LED
+});
+
+// Conectar WebSocket no upgrade da requisição HTTP
 app.server.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request);
